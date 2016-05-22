@@ -1,0 +1,199 @@
+﻿@{
+	ViewBag.Title = "Euchre!";
+}
+<body background="~/Assets/BACKGROUND.jpg">
+    <center><h1 style="width:1000px">Euchre</h1></center>
+    </br>
+    <center>
+        <input type="text" id="displayname" width="60px" disabled />
+        <ul id="discussion"></ul>
+    </center>
+    <center>
+        <table style="width:1000px">
+            <tr>
+                <td style="width:150px">
+                    <center>
+                        <h2>Team 1:</h2>
+                        </br>
+                        <input type="text" id="Team1" />
+                        </br>
+                        <h3>Trick:</h3>
+                        </br>
+                        <input type="text" id="trickT1" />
+                    </center>
+                </td>
+                <td>
+                    <table style="width:692px" ; background-color:black; border-width:25%" align="center" background="~/Assets/Table.jpg">
+                        <tr style="height:96px">
+                            <td style="width:173px"></td>
+                            <td style="width:346px">
+                                <center>PLAYER 1<input type="radio" name="radioBtn" id="radioBtn1" checked="checked" /></center>
+                            </td>
+                            <td style="width:173px"></td>
+                        </tr>
+
+                        <tr style="height:500px">
+                            <td style="width:173px">
+                                <center>PLAYER 2<input type="radio" name="radioBtn" id="radioBtn2" disabled /></center>
+                            </td>
+                            <td style="width:400px">
+                                <center>
+                                    <input type="image" id="firstCardPlayed" src="~/Assets/cards/FACEDOWN_RED.jpg">
+                                    <input type="image" id="secondCardPlayed" src="~/Assets/cards/FACEDOWN_RED.jpg">
+                                    </br>
+                                    <input type="image" id="thirdCardPlayed" src="~/Assets/cards/FACEDOWN_RED.jpg">
+                                    <input type="image" id="fourthCardPlayed" src="~/Assets/cards/FACEDOWN_RED.jpg">
+
+                                </center>
+                            </td>
+                            <td style="width:173px">
+                                <center>PLAYER 3<input type="radio" name="radioBtn" id="radioBtn3" disabled /></center>
+                            </td>
+                        </tr>
+
+                        <tr style="height:96px">
+                            <td style="width:173px"></td>
+                            <td style="width:346px">
+                                <center>PLAYER 4<input type="radio" name="radioBtn" id="radioBtn4" disabled /></center>
+                            </td>
+                            <td style="width:173px"></td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="width:150px">
+                    <center>
+                        <h2>Team 2:</h2>
+                        </br>
+                        <input type="text" id="Team2" />
+                        </br>
+                        <h3>Trick:</h3>
+                        </br>
+                        <input type="text" id="trickT2" />
+                    </center>
+                </td>
+            </tr>
+        </table>
+    </center>
+
+    </br>
+    </br>
+
+    <center>
+        <input type="image" id="card1" src="~/Assets/cards/FACEDOWN_RED.jpg">
+        <input type="image" id="card2" src="~/Assets/cards/FACEDOWN_RED.jpg">
+        <input type="image" id="card3" src="~/Assets/cards/FACEDOWN_RED.jpg">
+        <input type="image" id="card4" src="~/Assets/cards/FACEDOWN_RED.jpg">
+        <input type="image" id="card5" src="~/Assets/cards/FACEDOWN_RED.jpg">
+    </center>
+
+    </br>
+    </br>
+
+    <center>
+        <table style="width:1000px">
+            <tr>
+                <td>
+                    <center>
+                        <input type="image" id="pass" src="~/Assets/cards/buttons\pass.jpg">
+                        </br>
+                        <input type="image" id="pickUp" src="~/Assets/cards/buttons\Pick_up.jpg">
+                        </br>
+                        <input type="image" id="loaner" src="~/Assets/cards/buttons\Go_alone.jpg">
+                    </center>
+                </td>
+
+                <td>
+                    <center>
+                        <input type="image" id="clubs" src="~/Assets/cards/buttons\CUB.jpg">
+                        <input type="image" id="diamonds" src="~/Assets/cards/buttons\D.jpg">
+                        </br>
+                        <input type="image" id="hearts" src="~/Assets/cards/buttons\HEARTS.jpg">
+                        <input type="image" id="spades" src="~/Assets/cards/buttons\SPADE.jpg">
+                    </center>
+                </td>
+
+                <td>
+                    <input type="image" id="pickUpCard" src="~/Assets/cards/FACEDOWN_RED.jpg">
+                </td>
+            </tr>
+        </table>
+    </center>
+    </div>
+    </body>
+    @section scripts {
+        <!--Script references. -->
+        <!--The jQuery library is required and is referenced by default in _Layout.cshtml. -->
+        <!--Reference the SignalR library. -->
+        <script src="~/Scripts/jquery.signalR-2.2.0.min.js"></script>
+        <!--Reference the autogenerated SignalR hub script. -->
+        <script src="~/signalr/hubs"></script>
+        <!--SignalR script to update the chat page and send messages.-->
+        <script>
+            $(function () {
+                // Reference the auto-generated proxy for the hub.
+                var chat = $.connection.gameHub;
+                
+                // Create a function that the hub can call back to display messages.
+                chat.client.test = function (name) {
+                    var encodedName = $('<div />').text(name).html();
+                    $('#discussion').append('<li><strong>' + encodedName + '</li>');
+                };
+                // Get the user name and store it to prepend to messages.
+                $('#displayname').val(prompt('Enter your name:', ''));
+
+                // Start the connection.
+                $.connection.hub.start().done(function () {
+                    chat.server.send($('#displayname').val());
+                        
+                        $('#loaner').click(function () {
+                            chat.server.loaner($('#displayname').val());
+                            document.getElementById("pickUp").disabled = true;
+                            document.getElementById("pass").disabled = true;
+                        })
+
+                        $('#pass').click(function () {
+                            chat.server.pass($('#displayname').val());
+                            document.getElementById("pickUp").disabled = true;
+                            document.getElementById("loaner").disabled = true;
+                        });
+
+                        $('#pickUp').click(function () {
+                            chat.server.pickup($('#displayname').val());
+                            document.getElementById("pass").disabled = true;
+                            document.getElementById("loaner").disabled = true;
+                        });
+                });
+
+                var trickT1 = document.getElementById("trickT1");
+                var trickT2 = document.getElementById("trickT2");
+                trickT1.value = "6";
+                trickT2.value = "9";
+                document.getElementById("trickT1").style.width = "30px";
+                document.getElementById("trickT2").style.width = "30px";
+                document.getElementById("trickT1").disabled = true;
+                document.getElementById("trickT2").disabled = true;
+
+                var Team1 = document.getElementById("Team1");
+                var Team2 = document.getElementById("Team2");
+                Team1.value = "6";
+                Team2.value = "9";
+                document.getElementById("Team1").style.width = "30px";
+                document.getElementById("Team2").style.width = "30px";
+                document.getElementById("Team1").disabled = true;
+                document.getElementById("Team2").disabled = true;
+
+                i = 1;
+                while (i == 1) {
+                    document.getElementById("radioBtn" + (i + 1)).checked = "checked";
+                    document.getElementById("radioBtn" + (i)).checked = "uncheked";
+                    document.getElementById("radioBtn" + (i)).disabled = true;
+                    i++;
+                }
+            });
+            // This optional function html-encodes messages for display in the page.
+            function htmlEncode(value) {
+                var encodedValue = $('<div />').text(value).html();
+                return encodedValue;
+            }
+        </script>
+    }
